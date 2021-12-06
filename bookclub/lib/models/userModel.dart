@@ -5,7 +5,11 @@ class MyUser {
   String? email;
   String? fullName;
   Timestamp? accountCreated;
-  String? groupId;
 
-  MyUser({this.uid, this.email, this.fullName, this.accountCreated, this.groupId});
+  MyUser({
+    this.uid,
+    this.email,
+    this.fullName,
+    this.accountCreated,
+  });
 }

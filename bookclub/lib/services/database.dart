@@ -2,35 +2,32 @@
 // import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:bookclub/models/todoModel.dart';
+import 'package:bookclub/services/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-enum StatusCode { ERROR, SUCCESS }
 
 class MyDatabase {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Stream<TodoModel> getTodos(String userId) {
-  //   print("get called");
-
-  //   return _firestore.collection("users").doc(userId).collection("todos").snapshots().map((data) {
-  //     // print("Snapshots from firebase = $data");
-  //     return TodoModel.fromFirebase(doc: data);
-  //   });
-  // }
-
-  List<TodoModel> _brewListFromSnapshot(QuerySnapshot snapshot) {
+  List<TodoModel> _todoListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc) {
-      return TodoModel(value: doc["value"], id: doc.id);
+      return TodoModel(value: doc["value"], id: doc.id, category: doc["category"]);
     }).toList();
   }
 
   // get todo stream
-  Stream<List<TodoModel>> getTodos(String userId) {
-    print("useid = $userId");
+  Stream<List<TodoModel>> getTodos(String? userId) {
+    return _firestore.collection("users").doc(userId).collection("todos").snapshots().map(_todoListFromSnapshot);
+  }
 
-    // return _brewListFromSnapshot(_firestore.collection("users").doc(userId).collection("todos").snapshots().map());
+  Future<StatusCode> addTodo(String todoValue, String userId, String category) async {
+    try {
+      await _firestore.collection("users").doc(userId).collection("todos").add({"value": todoValue, "category": category});
+    } catch (e) {
+      print(e);
+      return StatusCode.ERROR;
+    }
 
-    return _firestore.collection("users").doc(userId).collection("todos").snapshots().map(_brewListFromSnapshot);
+    return StatusCode.SUCCESS;
   }
 }
 

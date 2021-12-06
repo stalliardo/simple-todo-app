@@ -1,6 +1,4 @@
-import 'package:bookclub/models/authModel.dart';
-import 'package:bookclub/services/database.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:bookclub/models/userModel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -13,6 +11,10 @@ class Auth extends ChangeNotifier {
   ApplicationLoginState _loginState = ApplicationLoginState.loggedOut;
   ApplicationLoginState get loginState => _loginState;
 
+  MyUser? _user;
+
+  MyUser? get user => _user;
+
   Auth() {
     print("init called");
     init();
@@ -23,6 +25,7 @@ class Auth extends ChangeNotifier {
       if (user != null) {
         _loginState = ApplicationLoginState.loggedIn;
         // TODO build the userModel
+        _user = MyUser(uid: user.uid, email: user.email);
         print("user: ${user.uid}");
       } else {
         _loginState = ApplicationLoginState.loggedOut;
@@ -31,18 +34,16 @@ class Auth extends ChangeNotifier {
     });
   }
 
-  Future<String> signOut() async {
-    String retVal = "error";
-
+  Future<StatusCode> signOut() async {
     try {
       await _auth.signOut();
-      retVal = "success";
     } catch (e) {
       print(e);
+      return StatusCode.ERROR;
     }
 
     notifyListeners();
-    return retVal;
+    return StatusCode.SUCCESS;
   }
 
   Future<StatusCode> signInWithEmailAndPassword(String email, String password) async {

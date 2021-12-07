@@ -120,30 +120,6 @@ class _TodoContainerState extends State<TodoContainer> {
           child: Consumer<List<TodoModel>>(
             builder: (context, _todoList, _) => Column(
               children: [
-                // for (var todo in _todoList)
-                // Padding(
-                //   padding: EdgeInsets.symmetric(vertical: 6),
-                //   child: Card(
-                //     child: ListTile(
-                //       tileColor: Colors.grey[100],
-                //       title: Text(todo.value.toString()),
-                //       subtitle: Text(
-                //         todo.category,
-                //         style: TextStyle(color: Colors.red[800], fontWeight: FontWeight.bold, height: 3),
-                //       ),
-                //       trailing: Icon(Icons.edit),
-                //       onTap: () {
-                //         showModalBottomSheet(
-                //             context: context,
-                //             builder: (context) => EditTodoModal(
-                //                   todo: todo,
-                //                   userId: _auth.user!.uid!,
-                //                 ));
-                //       },
-                //     ),
-                //   ),
-                // )
-
                 for (var todo in _todoList)
                   todo.category == _todoFilter
                       ? Padding(
@@ -177,9 +153,3 @@ class _TodoContainerState extends State<TodoContainer> {
     );
   }
 }
-
-
-/// Filter todos, will display the categories plus an "All" filter
-/// Will have to add the todos to an array then display urgent by default.
-/// Will use the category as the filter. todoArray.map((e) => return e.category == "filterCategory"); 
-/// Feel like this will work fine

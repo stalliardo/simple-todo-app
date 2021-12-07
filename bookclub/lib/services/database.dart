@@ -29,6 +29,19 @@ class MyDatabase {
 
     return StatusCode.SUCCESS;
   }
+
+  Future<StatusCode> updateTodo(String todoValue, String category, String userId, String todoId) async {
+    try {
+      await _firestore.collection("users").doc(userId).collection("todos").doc(todoId).update({
+        "value": todoValue,
+        "category": category,
+      });
+    } catch (e) {
+      return StatusCode.ERROR;
+    }
+
+    return StatusCode.SUCCESS;
+  }
 }
 
 // class MyDatabase {

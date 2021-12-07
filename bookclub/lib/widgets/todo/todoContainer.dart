@@ -15,6 +15,14 @@ class TodoContainer extends StatefulWidget {
 class _TodoContainerState extends State<TodoContainer> {
   TextEditingController _todoController = TextEditingController();
   String dropdownValue = "Uncategorized";
+  String _todoFilter = "Urgent";
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _todoController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +38,6 @@ class _TodoContainerState extends State<TodoContainer> {
             value: dropdownValue,
             icon: Icon(Icons.arrow_downward),
             onChanged: (String? newValue) {
-              print("on cahnged called + newValue = $newValue");
-              print("_dropdownValue =  $dropdownValue");
               setState(() {
                 dropdownValue = newValue!;
               });
@@ -51,7 +57,6 @@ class _TodoContainerState extends State<TodoContainer> {
             }).toList()),
         ElevatedButton(
           onPressed: () async {
-            // TODO
             if (_todoController.text.length > 1) {
               StatusCode _response = await MyDatabase().addTodo(_todoController.text, _auth.user!.uid!, dropdownValue);
               if (_response == StatusCode.ERROR) {
@@ -76,32 +81,94 @@ class _TodoContainerState extends State<TodoContainer> {
         SizedBox(
           height: 30,
         ),
+        Row(
+          children: <Widget>[
+            Text("Filter todos"),
+            SizedBox(
+              width: 40,
+            ),
+            DropdownButton<String>(
+              value: _todoFilter,
+              icon: Icon(Icons.arrow_downward),
+              onChanged: (String? newValue) {
+                setState(() {
+                  _todoFilter = newValue!;
+                });
+              },
+              style: TextStyle(
+                color: Colors.deepPurpleAccent,
+              ),
+              underline: Container(
+                height: 2,
+                color: Colors.deepPurpleAccent,
+              ),
+              items: <String>["Urgent", "Doing", "Done", "Low Priority", "Uncategorized"].map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 20,
+        ),
         StreamProvider<List<TodoModel>>.value(
           value: MyDatabase().getTodos(_auth.user!.uid),
           initialData: [],
           child: Consumer<List<TodoModel>>(
             builder: (context, _todoList, _) => Column(
               children: [
+                // for (var todo in _todoList)
+                // Padding(
+                //   padding: EdgeInsets.symmetric(vertical: 6),
+                //   child: Card(
+                //     child: ListTile(
+                //       tileColor: Colors.grey[100],
+                //       title: Text(todo.value.toString()),
+                //       subtitle: Text(
+                //         todo.category,
+                //         style: TextStyle(color: Colors.red[800], fontWeight: FontWeight.bold, height: 3),
+                //       ),
+                //       trailing: Icon(Icons.edit),
+                //       onTap: () {
+                //         showModalBottomSheet(
+                //             context: context,
+                //             builder: (context) => EditTodoModal(
+                //                   todo: todo,
+                //                   userId: _auth.user!.uid!,
+                //                 ));
+                //       },
+                //     ),
+                //   ),
+                // )
+
                 for (var todo in _todoList)
-                  Card(
-                    child: ListTile(
-                      tileColor: Colors.grey[100],
-                      title: Text(todo.value.toString()),
-                      subtitle: Text(
-                        todo.category,
-                        style: TextStyle(color: Colors.red[800], fontWeight: FontWeight.bold, height: 3),
-                      ),
-                      trailing: Icon(Icons.edit),
-                      onTap: () {
-                        print("todo passed to child Class = ${todo}");
-                        showModalBottomSheet(
-                            context: context,
-                            builder: (context) => EditTodoModal(
-                                  todo: todo,
-                                ));
-                      },
-                    ),
-                  )
+                  todo.category == _todoFilter
+                      ? Padding(
+                          padding: EdgeInsets.symmetric(vertical: 6),
+                          child: Card(
+                            child: ListTile(
+                              tileColor: Colors.grey[100],
+                              title: Text(todo.value.toString()),
+                              subtitle: Text(
+                                todo.category,
+                                style: TextStyle(color: Colors.red[800], fontWeight: FontWeight.bold, height: 3),
+                              ),
+                              trailing: Icon(Icons.edit),
+                              onTap: () {
+                                showModalBottomSheet(
+                                    context: context,
+                                    builder: (context) => EditTodoModal(
+                                          todo: todo,
+                                          userId: _auth.user!.uid!,
+                                        ));
+                              },
+                            ),
+                          ),
+                        )
+                      : SizedBox(),
               ],
             ),
           ),
@@ -110,3 +177,9 @@ class _TodoContainerState extends State<TodoContainer> {
     );
   }
 }
+
+
+/// Filter todos, will display the categories plus an "All" filter
+/// Will have to add the todos to an array then display urgent by default.
+/// Will use the category as the filter. todoArray.map((e) => return e.category == "filterCategory"); 
+/// Feel like this will work fine
